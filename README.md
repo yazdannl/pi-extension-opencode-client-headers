@@ -2,6 +2,8 @@
 
 Adjusts request payloads and headers for Pi models using OpenCode. It applies only when the model provider is `opencode` or `opencode-go`, or its base URL contains `opencode.ai`. It supplies OpenCode-style client metadata and stable synthetic session IDs, and removes several SDK headers OpenCode does not normally send. It does not provide or store authentication credentials.
 
+It also patches direct `ctx.modelRegistry.streamSimple()`/`stream()`/`complete()` calls (the observational-memory observer/reflector/dropper workers and other extensions' nested model calls), which bypass Pi's `before_provider_headers` hook and payload transform. opencode.ai's free-tier gate rejects those with `403 FreeTierError: OpenCode's free tier can only be used from within OpenCode` unless the request carries an `opencode/...` user agent, a `ses_`-shaped `x-opencode-session`, and a declared tool named `read`; the patch ensures all three and leaves provider-routed traffic otherwise untouched.
+
 ## Install
 
 From this repository's root:
